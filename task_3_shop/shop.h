@@ -10,19 +10,20 @@
 #define MAX_PRODUCTS 10000
 #define MAX_STOCK 5000
 
+// Структура, представляющая магазин
 typedef struct {
-    int id;
-    int stock;
+    int id; // Идентификатор магазина
+    int stock; // Количество товаров в магазине
 } Shop;
 
-void print_customer_info(int id, int need, int shop_id, int purchase, int remaining_need);
-void print_loader_info(int shop_id, int current_stock, int products_added);
+// Прототипы функций
+void output_customer_info(int id, int need, int shop_id, int purchase, int remaining_need);
+void output_loader_info(int shop_id, int current_stock, int products_added);
 int random_number(int min, int max);
 void initialize_shops();
-void print_initial_stock();
-void print_program_end();
+void output_initial_stock();
+void output_program_end();
 void* customer(void* arg);
 void* loader(void* arg);
 
-#endif /* SHOP_H */
-
+#endif

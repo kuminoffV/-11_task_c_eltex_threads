@@ -7,26 +7,30 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t shop_cond = PTHREAD_COND_INITIALIZER;
 Shop shops[NUM_SHOPS];
 
-void print_customer_info(int id, int need, int shop_id, int purchase, int remaining_need) {
-    printf("Покупатель %d: Потребность перед походом в магазин: %d, Магазин, в который он зашел: %d, Сумма покупки: %d, Оставшаяся потребность: %d\n",
+// Функция для вывода информации о покупателе
+void output_customer_info(int id, int need, int shop_id, int purchase, int remaining_need) {
+    printf("ПОКУПАТЕЛЬ %d: Потребность ДО: %d | Магазин: %d | Сумма покупки: %d | Потребность ПОСЛЕ: %d | Отдых 2 секунды\n\n",
            id, need, shop_id, purchase, remaining_need);
-    printf("Покупатель %d: Засыпает на 2 секунды...\n", id);
+    //printf("Покупатель %d: Засыпает на 2 секунды...\n\n", id);
     if (remaining_need <= 0) {
-        printf("Покупатель %d: Насыщен! Больше не ходит по магазинам.\n", id);
+        printf("Покупатель %d: Насыщен! Больше не ходит по магазинам.\n\n", id);
     }
 }
 
-void print_loader_info(int shop_id, int current_stock, int products_added) {
+// Функция для вывода информации о погрузчике
+void output_loader_info(int shop_id, int current_stock, int products_added) {
     printf("------------------------------------\n");
-    printf("Погрузчик: Магазин, в который он зашел: %d, Текущее количество товаров: %d, Количество товаров, которые он положил: %d\n",
+    printf("ДОСТАВКА: Магазин: %d | Текущее количество товаров: %d | Количество товаров, которые доставлены: %d | Отдых 1 секунда\n", 
            shop_id, current_stock, products_added);
-    printf("------------------------------------\n");
+    printf("------------------------------------\n\n");
 }
 
+// Генерация случайного числа в заданном диапазоне
 int random_number(int min, int max) {
     return rand() % (max - min + 1) + min;
 }
 
+// Инициализация магазинов
 void initialize_shops() {
     for (int i = 0; i < NUM_SHOPS; ++i) {
         shops[i].id = i;
@@ -34,17 +38,20 @@ void initialize_shops() {
     }
 }
 
-void print_initial_stock() {
-    printf("Информация о заполненности магазинов в начале программы:\n");
+// Вывод начального запаса товаров в магазинах
+void output_initial_stock() {
+    printf("\nЗаполненность магазинов в начале дня:\n");
     for (int i = 0; i < NUM_SHOPS; ++i) {
-        printf("Магазин %d: Товаров на складе: %d\n", i, shops[i].stock);
+        printf("Магазин %d: Товаров на складе: %d\n\n", i, shops[i].stock);
     }
 }
 
-void print_program_end() {
-    printf("Программа завершена.\n");
+// Вывод сообщения о завершении программы
+void output_program_end() {
+    printf("КОНЕЦ\n");
 }
 
+// Функция, представляющая поведение покупателя
 void* customer(void* arg) {
     int id = *((int*) arg);
     int need = MAX_NEED;
@@ -63,7 +70,7 @@ void* customer(void* arg) {
             shops[shop_id].stock -= purchase;
             need -= purchase;
             pthread_mutex_unlock(&mutex);
-            print_customer_info(id, need + purchase, shop_id, purchase, need);
+            output_customer_info(id, need + purchase, shop_id, purchase, need);
             sleep(2);
         } else {
             pthread_cond_wait(&shop_cond, &mutex);
@@ -73,13 +80,14 @@ void* customer(void* arg) {
     return NULL;
 }
 
+// Функция, представляющая поведение погрузчика
 void* loader(void* arg) {
     while (1) {
         for (int i = 0; i < NUM_SHOPS; ++i) {
             pthread_mutex_lock(&mutex);
             int products_added = random_number(0, MAX_STOCK);
             shops[i].stock += products_added;
-            print_loader_info(i, shops[i].stock, products_added);
+            output_loader_info(i, shops[i].stock, products_added);
             pthread_cond_broadcast(&shop_cond);
             pthread_mutex_unlock(&mutex);
             sleep(1);
